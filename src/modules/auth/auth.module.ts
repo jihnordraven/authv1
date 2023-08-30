@@ -1,3 +1,4 @@
+import { ThrottlerModule } from '@nestjs/throttler'
 import { Module } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
@@ -28,14 +29,18 @@ const queryHandlers = [ValidateUserHandler]
 
 const adapters = [MailerAdapter]
 
+const appModules = [UserModule, EmailModule, TokenModule]
+
 @Module({
 	imports: [
+		ThrottlerModule.forRoot({
+			ttl: 20,
+			limit: 15
+		}),
 		CqrsModule,
-		UserModule,
-		EmailModule,
-		TokenModule,
 		JwtModule,
-		HttpModule
+		HttpModule,
+		...appModules
 	],
 	controllers: [AuthController],
 	providers: [

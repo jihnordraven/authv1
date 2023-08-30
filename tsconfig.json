@@ -26,7 +26,8 @@
 			"@guards": ["src/protection/guards"],
 			"@types": ["src/types"],
 			"@utils": ["src/utils"],
-			"@prisma": ["src/modules/prisma/prisma.service"]
+			"@prisma": ["src/modules/prisma/prisma.service"],
+			"@validations": ["src/validations"]
 		}
 	}
 }

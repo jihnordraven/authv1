@@ -3,6 +3,7 @@ import { PrismaService } from '@prisma'
 import { v4 } from 'uuid'
 import { add } from 'date-fns'
 import { PasswordCode } from '@prisma/client'
+import { FindPasswordCodeDto, RemovePasswordCodeDto } from '@dtos/password'
 
 @Injectable()
 export class NewPasswordRepository {
@@ -15,6 +16,18 @@ export class NewPasswordRepository {
 				exp: add(new Date(), { months: 1 }),
 				userId: userId
 			}
+		})
+	}
+
+	async findCode(dto: FindPasswordCodeDto): Promise<PasswordCode> {
+		return this.prismaService.passwordCode.findUnique({
+			where: { code: dto.code }
+		})
+	}
+
+	async removeCode(dto: RemovePasswordCodeDto): Promise<void> {
+		await this.prismaService.passwordCode.delete({
+			where: { id: dto.passwordCodeId }
 		})
 	}
 }

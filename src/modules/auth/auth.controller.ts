@@ -13,9 +13,10 @@ import {
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { LoginUserDto, RegisterUserDto } from '@dtos/auth'
-import { GoogleGuard, LocalGuard } from '@guards'
+import { GitHubGuard, GoogleGuard, LocalGuard } from '@guards'
 import {
 	CookieDecorator,
+	GitHubPayloadDecorator,
 	GooglePayloadDecorator,
 	LocalGuardDecorator,
 	UserAgentDecorator,
@@ -27,6 +28,7 @@ import { ACCESS_TOKEN, REFRESH_TOKEN } from '@constants'
 import { HttpService } from '@nestjs/axios'
 import { Observable, firstValueFrom, mergeMap } from 'rxjs'
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ThrottlerGuard } from '@nestjs/throttler'
 
 @ApiTags('auth endpoints')
 @Controller('auth')
@@ -37,35 +39,21 @@ export class AuthController {
 	) {}
 
 	@Post('register')
+	@UseGuards(ThrottlerGuard)
 	@HttpCode(HttpStatus.CREATED)
 	@UsePipes(new ValidationPipe())
-	// swagger
 	@ApiBody({ type: RegisterUserDto })
 	async register(@Body() dto: RegisterUserDto): Promise<string> {
 		return this.authService.register(dto)
 	}
 
 	@Post('login')
+	@UseGuards(ThrottlerGuard)
 	@UseGuards(LocalGuard)
 	@HttpCode(HttpStatus.OK)
 	@UsePipes(new ValidationPipe())
 	@ApiBody({ type: LoginUserDto })
-	@ApiResponse({
-		status: 200,
-		description: 'Logged in',
-		headers: {
-			refresh_token: {
-				schema: { type: 'string' },
-				description: 'Refresh token in cookie'
-			}
-		},
-		schema: {
-			properties: {
-				access_token: { type: `string` }
-			},
-			description: 'Bearer ...'
-		}
-	})
+	@ApiResponse({ status: 200, description: 'Logged in successfully' })
 	@ApiResponse({ status: 401, description: 'Invalid login or password' })
 	@ApiResponse({ status: 400, description: 'Invalid credentials' })
 	async login(
@@ -98,19 +86,6 @@ export class AuthController {
 			userIp
 		)
 		return await this.setTokensToResponse(tokens, res)
-	}
-
-	private async setTokensToResponse(
-		{ refreshToken, accessToken }: Tokens,
-		res: Response
-	): Promise<void> {
-		res.cookie(REFRESH_TOKEN, refreshToken.token, {
-			httpOnly: true,
-			secure: false,
-			sameSite: 'lax',
-			expires: refreshToken.exp
-		})
-		res.json({ accessToken })
 	}
 
 	@Get('google')
@@ -147,5 +122,53 @@ export class AuthController {
 		const tokens: Tokens = await firstValueFrom(tokens$)
 
 		return await this.setTokensToResponse(tokens, res)
+	}
+
+	@Get('github')
+	@UseGuards(GitHubGuard)
+	async gitHubAuth() {}
+
+	@Get('github/callback')
+	@UseGuards(GitHubGuard)
+	async gitHubAuthCallback(
+		@GitHubPayloadDecorator('accessToken') accessToken: string,
+		@Res() res: Response
+	) {
+		return res.redirect(
+			`http://localhost:4200/api/auth/github/success?${ACCESS_TOKEN}=${accessToken}`
+		)
+	}
+
+	@Get('github/success')
+	async gitHubAuthSuccess(
+		@Query(ACCESS_TOKEN) accessToken: string,
+		@Res() res: Response
+	) {
+		try {
+			const githubResponse = await firstValueFrom(
+				this.httpService.get('https://api.github.com/user', {
+					headers: { Authorization: `token ${accessToken}` }
+				})
+			)
+			return res.status(HttpStatus.OK).json(githubResponse.data)
+		} catch (error) {
+			return res
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.json({ error: 'An error occurred' })
+		}
+	}
+
+	// functions
+	private async setTokensToResponse(
+		{ refreshToken, accessToken }: Tokens,
+		res: Response
+	): Promise<void> {
+		res.cookie(REFRESH_TOKEN, refreshToken.token, {
+			httpOnly: true,
+			secure: false,
+			sameSite: 'lax',
+			expires: refreshToken.exp
+		})
+		res.json({ accessToken })
 	}
 }

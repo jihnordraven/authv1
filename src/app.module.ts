@@ -7,10 +7,18 @@ import { EmailModule } from './modules/email/email.module'
 import { TokenModule } from './modules/token/token.module'
 import { CacheModule } from '@nestjs/cache-manager'
 import { redisStore } from 'cache-manager-redis-yet'
-import { NewPasswordModule } from './modules/new-password/new-password.module'
-import { GoogleStrategy, JwtStrategy, LocalStrategy } from '@strategies'
+import { NewPasswordModule } from './modules/password/password.module'
+import {
+	GitHubStrategy,
+	GoogleStrategy,
+	JwtStrategy,
+	LocalStrategy
+} from '@strategies'
+import { AppController } from './app.controller'
+import { ThrottlerModule } from '@nestjs/throttler'
+// import { GitHubStrategy } from './protection/strategies/github.strategy'
 
-const strategies = [LocalStrategy, JwtStrategy, GoogleStrategy]
+const strategies = [LocalStrategy, JwtStrategy, GoogleStrategy, GitHubStrategy]
 
 @Module({
 	imports: [
@@ -20,10 +28,10 @@ const strategies = [LocalStrategy, JwtStrategy, GoogleStrategy]
 			useFactory: async (configService: ConfigService) => ({
 				store: await redisStore({
 					socket: {
-						host: /* configService.get<string>('REDIS_HOST') */ 'localhost',
-						port: /* configService.get<number>('REDIS_PORT') */ 6379
+						host: 'localhost',
+						port: 6379
 					},
-					ttl: /* configService.get<number>('CACHE_TTL') */ 3600
+					ttl: 3600
 				})
 			})
 		}),
@@ -34,6 +42,7 @@ const strategies = [LocalStrategy, JwtStrategy, GoogleStrategy]
 		TokenModule,
 		NewPasswordModule
 	],
+	controllers: [AppController],
 	providers: [...strategies]
 })
 export class AppModule {}

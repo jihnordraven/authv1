@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { NewPasswordRepository } from '../../new-password.repository'
+import { NewPasswordRepository } from '../../password-repository'
 import { PasswordCode } from '@prisma/client'
 import { UnauthorizedException } from '@nestjs/common'
 import { MailerAdapter } from 'src/adapters'

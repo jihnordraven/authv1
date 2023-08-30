@@ -1,11 +1,14 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
+import { red } from 'colorette'
 import { Profile, Strategy } from 'passport-google-oauth20'
 import { GoogleUser } from 'src/types'
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
+	private readonly logger: Logger = new Logger(GoogleStrategy.name)
+
 	constructor(private readonly configService: ConfigService) {
 		super({
 			clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
@@ -21,13 +24,22 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
 		profile: Profile,
 		done: any
 	) {
-		const user: GoogleUser = {
-			email: profile.emails[0].value,
-			firstName: profile.name.givenName,
-			lastName: profile.name.familyName,
-			photo: profile.photos[0].value,
-			accessToken
+		try {
+			const user: GoogleUser = {
+				email: profile.emails[0].value,
+				firstName: profile.name.givenName,
+				lastName: profile.name.familyName,
+				photo: profile.photos[0].value,
+				accessToken
+			}
+			done(null, user)
+		} catch (error: unknown) {
+			done(error)
+			this.logger.error(
+				red(
+					`Google Authentication done with an error... Learn more at: ${error}`
+				)
+			)
 		}
-		done(null, user)
 	}
 }

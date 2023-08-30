@@ -14,7 +14,7 @@ const bootstrap = async () => {
 		const app = await NestFactory.create<INestApplication>(AppModule)
 		app.setGlobalPrefix('api')
 		app.use(cookieParser())
-		app.enableCors()
+		app.enableCors({ credentials: true })
 		swaggerSetup(app)
 
 		const configService = app.get(ConfigService) as ConfigService
@@ -24,7 +24,9 @@ const bootstrap = async () => {
 		await app.listen(PORT)
 		logger.log(blue(bold(`Server is running on ${HOST}:${PORT}`)))
 	} catch (error: unknown) {
-		logger.error(red(`Something went wrong... Learn more at: ${error}`))
+		logger.error(
+			red(bold(`Something went wrong... Learn more at: ${error}`))
+		)
 	}
 }
 

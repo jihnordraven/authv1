@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { PrismaService } from '@prisma'
 import {
+	ChangePasswordDto,
 	CreateUserDto,
 	FindOneUserDto,
 	UpdateUserEmailStatusDto
@@ -38,6 +39,13 @@ export class UserRepository {
 		return this.prismaService.user.update({
 			where: { id: dto.userId },
 			data: { emailStatusName: dto.emailStatusName }
+		})
+	}
+
+	async changePassword(dto: ChangePasswordDto): Promise<any> {
+		await this.prismaService.user.update({
+			where: { id: dto.userId },
+			data: { password: dto.newPassword }
 		})
 	}
 }
