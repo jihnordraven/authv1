@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
-import { NewPasswordRepository } from '../../password-repository'
+import { PasswordRepository } from '../../password-repository'
 import { PasswordCode } from '@prisma/client'
 import { UnauthorizedException } from '@nestjs/common'
 import { MailerAdapter } from 'src/adapters'
@@ -10,13 +10,13 @@ export class SendPasswordCodeHandler
 	implements ICommandHandler<SendPasswordCodeCommand>
 {
 	constructor(
-		protected newPasswordRepository: NewPasswordRepository,
+		protected passwordRepository: PasswordRepository,
 		protected mailerAdapter: MailerAdapter
 	) {}
 
 	async execute({ userId, email }: SendPasswordCodeCommand): Promise<any> {
 		const emailCode: PasswordCode | null =
-			await this.newPasswordRepository.createCode(userId)
+			await this.passwordRepository.createCode(userId)
 
 		if (!emailCode)
 			throw new UnauthorizedException('Something went wrong...')

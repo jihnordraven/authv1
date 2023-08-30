@@ -12,9 +12,10 @@ model User {
   email    String  @unique
   password String?
 
-  token        Token[]
-  emailCode    EmailCode[]
-  passwordCode PasswordCode[]
+  token              Token[]
+  emailCode          EmailCode[]
+  passwordCode       PasswordCode[]
+  forgotPasswordCode ForgotPasswordCode[]
 
   role     Role      @relation(fields: [roleName], references: [name])
   roleName RolesEnum @map("role_name")
@@ -85,6 +86,14 @@ model PasswordCode {
   userId String
 
   @@map("password_codes")
+}
+
+model ForgotPasswordCode {
+  id     String   @id @unique @default(uuid())
+  code   String   @unique
+  exp    DateTime
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
 }
 
 // enums

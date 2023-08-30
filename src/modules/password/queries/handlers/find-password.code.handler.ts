@@ -1,14 +1,14 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { FindPasswordCodeQuery } from '../impl'
 import { PasswordCode } from '@prisma/client'
-import { NewPasswordRepository } from '../../password-repository'
+import { PasswordRepository } from '../../password-repository'
 import { UnauthorizedException } from '@nestjs/common'
 
 @QueryHandler(FindPasswordCodeQuery)
 export class FindPasswordCodeHandler
 	implements IQueryHandler<FindPasswordCodeQuery>
 {
-	constructor(protected readonly passwordRepository: NewPasswordRepository) {}
+	constructor(protected readonly passwordRepository: PasswordRepository) {}
 
 	async execute({ dto }: FindPasswordCodeQuery): Promise<PasswordCode> {
 		const passwordCode: PasswordCode | null =

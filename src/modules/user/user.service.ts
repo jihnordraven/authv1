@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import {
+	ChangeForgotPasswordDto,
 	ChangePasswordDto,
 	CreateUserDto,
 	FindOneUserDto,
@@ -9,6 +10,7 @@ import {
 import { User } from '@prisma/client'
 import { FindOneUserQuery } from './queries/impl'
 import {
+	ChangeForgotPasswordCommand,
 	ChangePasswordCommand,
 	CreateUserCommand,
 	UpdateUserEmailStatusCommand
@@ -35,5 +37,9 @@ export class UserService {
 
 	async changePassword(dto: ChangePasswordDto) {
 		return this.commandBus.execute(new ChangePasswordCommand(dto))
+	}
+
+	async changeForgotPassword(dto: ChangeForgotPasswordDto) {
+		return this.commandBus.execute(new ChangeForgotPasswordCommand(dto))
 	}
 }

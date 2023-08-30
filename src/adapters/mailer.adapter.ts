@@ -32,7 +32,16 @@ export class MailerAdapter {
 			to: dto.email,
 			from: 'Anton',
 			subject: 'Password recovery confirmation',
-			html: `<a href='http://localhost:4200/api/new-password/confirm?code=${dto.emailCode.code}'>Confirm password recovery</a>`
+			html: `<a href='http://localhost:4200/api/password/confirm?code=${dto.emailCode.code}'>Confirm password recovery</a>`
+		})
+	}
+
+	async sendMailForgotPass(dto: SendMailDto) {
+		await this.options({
+			to: dto.email,
+			from: 'Anton',
+			subject: 'Forgot password confirmation',
+			html: `<a href='http://localhost:4200/api/password?confirm-forgot?code=${dto.emailCode.code}'>Forgot password confirmation</a>`
 		})
 	}
 }
