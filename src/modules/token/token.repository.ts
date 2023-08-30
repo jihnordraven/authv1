@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '@prisma'
-import { CreateTokenDto, FindOneTokenDto } from '@dtos/token'
+import {
+	CreateTokenDto,
+	DeleteAllTokensDto,
+	DeleteOneTokenDto,
+	FindAllTokensDto,
+	FindOneTokenByIdDto,
+	FindOneTokenByTokenDto,
+	FindOneTokenDto
+} from '@dtos/token'
 import { Token } from '@prisma/client'
 import { v4 } from 'uuid'
 import { add } from 'date-fns'
@@ -35,9 +43,33 @@ export class TokenRepository {
 		})
 	}
 
-	async findOne(dto: FindOneTokenDto): Promise<Token | null> {
+	async findOneByToken(dto: FindOneTokenByTokenDto): Promise<Token | null> {
 		return this.prismaService.token.findUnique({
 			where: { token: dto.token }
+		})
+	}
+
+	async findOneById(dto: FindOneTokenByIdDto): Promise<Token | null> {
+		return this.prismaService.token.findUnique({
+			where: { id: dto.id, userId: dto.userId }
+		})
+	}
+
+	async findAll(dto: FindAllTokensDto): Promise<Token[] | null> {
+		return this.prismaService.token.findMany({
+			where: { userId: dto.userId }
+		})
+	}
+
+	async deleteOne(dto: DeleteOneTokenDto): Promise<Token | null> {
+		return this.prismaService.token.delete({
+			where: { id: dto.id, userId: dto.userId }
+		})
+	}
+
+	async deleteAll(dto: DeleteAllTokensDto): Promise<Token[] | null> {
+		return this.prismaService.token.findMany({
+			where: { userId: dto.userId }
 		})
 	}
 }

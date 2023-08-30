@@ -1,8 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator'
 
 export class FindOneTokenDto {
-	@ApiProperty()
+	@IsOptional()
+	@IsUUID()
+	public readonly id?: string
+
 	@IsNotEmpty()
-	readonly token: string
+	@IsUUID()
+	public readonly userId: string
 }

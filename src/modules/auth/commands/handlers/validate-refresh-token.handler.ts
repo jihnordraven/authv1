@@ -15,7 +15,9 @@ export class ValidateRefreshTokenHandler
 	) {}
 
 	async execute({ dto }: ValidateRefreshTokenCommand): Promise<any> {
-		const token: Token | null = await this.tokenService.findOne(dto)
+		const token: Token | null = await this.tokenService.findOneByToken({
+			token: dto.token
+		})
 
 		if (!token)
 			throw new UnauthorizedException(
