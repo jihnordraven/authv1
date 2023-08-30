@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @unique @default(uuid())
+  email    String  @unique
+  password String?
+
+  token        Token[]
+  emailCode    EmailCode[]
+  passwordCode PasswordCode[]
+
+  role     Role      @relation(fields: [roleName], references: [name])
+  roleName RolesEnum @map("role_name")
+
+  provider     Provider      @relation(fields: [providerName], references: [name])
+  providerName ProvidersEnum @map("provider_name")
+
+  emailStatus     EmailStatus     @relation(fields: [emailStatusName], references: [name])
+  emailStatusName EmailStatusEnum @map("email_status_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Token {
+  id        String   @id @unique @default(uuid())
+  token     String   @unique
+  exp       DateTime
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  userAgent String   @map("user_agent")
+  userIp    String   @map("user_ip")
+
+  @@map("tokens")
+}
+
+model Role {
+  id    Int       @id @unique @default(autoincrement())
+  name  RolesEnum @unique
+  users User[]
+
+  @@map("roles")
+}
+
+model Provider {
+  id    Int           @id @unique @default(autoincrement())
+  name  ProvidersEnum @unique
+  users User[]
+
+  @@map("providers")
+}
+
+model EmailCode {
+  id     String   @id @unique @default(uuid())
+  code   String   @unique
+  exp    DateTime
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
+
+  @@map("email_codes")
+}
+
+model EmailStatus {
+  id    Int             @id @unique @default(autoincrement())
+  name  EmailStatusEnum @unique
+  users User[]
+
+  @@map("email_status")
+}
+
+model PasswordCode {
+  id     String   @id @unique @default(uuid())
+  code   String   @unique
+  exp    DateTime
+  user   User     @relation(fields: [userId], references: [id])
+  userId String
+
+  @@map("password_codes")
+}
+
+// enums
+enum RolesEnum {
+  USER
+  ADMIN
+}
+
+enum ProvidersEnum {
+  LOCAL
+  GOOGLE
+  GITHUB
+}
+
+enum EmailStatusEnum {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
