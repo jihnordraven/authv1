@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 import { GoogleRegisterCommand } from '../impl'
 import { EmailStatusEnum, ProvidersEnum, RolesEnum, User } from '@prisma/client'
 import { BadRequestException, ConflictException } from '@nestjs/common'
-import { UserRepository } from 'src/modules/user/user.repository'
 import { UserService } from 'src/modules/user/user.service'
 
 @CommandHandler(GoogleRegisterCommand)

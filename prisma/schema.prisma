@@ -16,6 +16,7 @@ model User {
   emailCode          EmailCode[]
   passwordCode       PasswordCode[]
   forgotPasswordCode ForgotPasswordCode[]
+  userBan            UserBan[]
 
   role     Role      @relation(fields: [roleName], references: [name])
   roleName RolesEnum @map("role_name")
@@ -65,7 +66,7 @@ model EmailCode {
   code   String   @unique
   exp    DateTime
   user   User     @relation(fields: [userId], references: [id])
-  userId String
+  userId String   @map("user_id")
 
   @@map("email_codes")
 }
@@ -83,7 +84,7 @@ model PasswordCode {
   code   String   @unique
   exp    DateTime
   user   User     @relation(fields: [userId], references: [id])
-  userId String
+  userId String   @map("user_id")
 
   @@map("password_codes")
 }
@@ -93,7 +94,21 @@ model ForgotPasswordCode {
   code   String   @unique
   exp    DateTime
   user   User     @relation(fields: [userId], references: [id])
-  userId String
+  userId String   @map("user_id")
+
+  @@map("forgot_password_code")
+}
+
+model UserBan {
+  id        String   @id @unique @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  reason    String?
+  duration  DateTime
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @map("created_at")
+
+  @@map("user_bans")
 }
 
 // enums

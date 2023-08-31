@@ -17,13 +17,15 @@ export class GenerateTokensHandler
 	) {}
 
 	async execute({ dto }: GenerateTokensCommand): Promise<any> {
-		const accessToken: string = this.jwtService.sign(
-			{ userId: dto.userId },
-			{
-				secret: this.configService?.get<string>('JWT_SECRET'),
-				expiresIn: this.configService?.get<string>('JWT_EXP')
-			}
-		)
+		const accessToken: string =
+			'Bearer ' +
+			this.jwtService.sign(
+				{ userId: dto.userId },
+				{
+					secret: this.configService?.get<string>('JWT_SECRET'),
+					expiresIn: this.configService?.get<string>('JWT_EXP')
+				}
+			)
 
 		const refreshToken: Token | null = await this.tokenService.create({
 			userId: dto.userId,

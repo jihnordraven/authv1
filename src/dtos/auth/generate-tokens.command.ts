@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty } from 'class-validator'
+import { IsIP, IsNotEmpty, IsUUID } from 'class-validator'
 
 export class GenerateTokensDto {
 	@ApiProperty()
 	@IsNotEmpty()
+	@IsUUID()
 	readonly userId: string
 
 	@ApiProperty()
@@ -12,5 +13,6 @@ export class GenerateTokensDto {
 
 	@ApiProperty()
 	@IsNotEmpty()
+	@IsIP()
 	readonly userIp: string
 }
